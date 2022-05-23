@@ -4,3 +4,8 @@ obj/
 .ionide/
 .fake/
 paket-files/
+
+deploy/
+output/
+node_modules/
+server/

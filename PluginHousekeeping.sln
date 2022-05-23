@@ -9,6 +9,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{5BE7
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebBackend", "backend\web\WebBackend.fsproj", "{A0A8E30B-02A5-4182-9A4F-81E7F4414352}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "frontend", "frontend", "{CE0FAAFD-D59C-4F65-8005-932C3F5F8C40}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebFrontend", "frontend\web\WebFrontend.fsproj", "{FC386B3F-2378-4B98-BF25-A1D2117A483C}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "run", "run.fsproj", "{B6CC62B7-7BA0-4BA4-A549-DAC23017DAA7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,8 +32,17 @@ Global
 		{A0A8E30B-02A5-4182-9A4F-81E7F4414352}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0A8E30B-02A5-4182-9A4F-81E7F4414352}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0A8E30B-02A5-4182-9A4F-81E7F4414352}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC386B3F-2378-4B98-BF25-A1D2117A483C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC386B3F-2378-4B98-BF25-A1D2117A483C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC386B3F-2378-4B98-BF25-A1D2117A483C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC386B3F-2378-4B98-BF25-A1D2117A483C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6CC62B7-7BA0-4BA4-A549-DAC23017DAA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6CC62B7-7BA0-4BA4-A549-DAC23017DAA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6CC62B7-7BA0-4BA4-A549-DAC23017DAA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6CC62B7-7BA0-4BA4-A549-DAC23017DAA7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A0A8E30B-02A5-4182-9A4F-81E7F4414352} = {5BE7248E-93C2-4EE3-AA2A-F3B842813553}
+		{FC386B3F-2378-4B98-BF25-A1D2117A483C} = {CE0FAAFD-D59C-4F65-8005-932C3F5F8C40}
 	EndGlobalSection
 EndGlobal

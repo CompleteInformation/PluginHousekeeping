@@ -18,9 +18,9 @@ module HousekeepingApi =
                 |> List.map (fun name -> { name = name })
         }
 
-    let instance: Api = { getRooms = getRooms }
+    let instance: HousekeepingApi = { getRooms = getRooms }
 
-type HouseKeepingPlugin() =
+type Plugin() =
     interface WebserverPlugin with
         member _.getApi routeBuilder =
             Api.build HousekeepingApi.instance routeBuilder

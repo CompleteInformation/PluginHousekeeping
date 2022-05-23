@@ -13,6 +13,8 @@ module Config =
     let frontendProject = "frontend/web/WebFrontend.fsproj"
     let frontendDeployPath = "frontend/web/deploy"
     let publishPath = "./publish"
+    let serverArchivePath = "./CompleteInformation.tar.lz"
+    let serverPath = "./server"
 
 module Task =
     let restore () =
@@ -43,6 +45,70 @@ module Task =
             buildWebServer config
         }
 
+    let publish config =
+        let config =
+            match config with
+            | Debug -> "Debug"
+            | Release -> "Release"
+
+        job {
+            dotnet [
+                "publish"
+                Config.backendProject
+                "-c"
+                config
+            ]
+        }
+
+    let serveWeb () =
+        job {
+            // Download server
+            if not (File.Exists Config.serverArchivePath) then
+                cmd
+                    "wget"
+                    [
+                        "-O"
+                        Config.serverArchivePath
+                        "https://github.com/CompleteInformation/Core/releases/download/latest/CompleteInformation.tar.lz"
+                    ]
+            // Unpack server
+            if not (Directory.Exists Config.serverPath) then
+                Directory.CreateDirectory Config.serverPath
+                |> ignore
+
+                cmd
+                    "tar"
+                    [
+                        "-xvf"
+                        Config.serverArchivePath
+                        "--directory"
+                        Config.serverPath
+                    ]
+            // Copy plugin into server
+            Shell.mkdir $"{Config.serverPath}/plugins"
+            Shell.mkdir $"{Config.serverPath}/WebRoot/plugins"
+
+            let backendPlugin =
+                $"{Path.GetDirectoryName(Config.backendProject)}/bin/Debug/net6.0/publish/"
+
+            Directory.EnumerateFiles(backendPlugin, "Housekeeping.*")
+            |> Seq.iter (Shell.copyFile $"{Config.serverPath}/plugins/")
+
+            let frontendPlugin =
+                $"{Path.GetDirectoryName(Config.frontendProject)}/deploy/public"
+
+            let frontendPluginPath = $"{Config.serverPath}/WebRoot/plugin/housekeeping/"
+            Shell.mkdir frontendPluginPath
+
+            Shell.copyRecursiveTo true frontendPluginPath frontendPlugin
+            |> ignore
+
+            // Start server
+            CreateProcess.fromRawCommand $"{Config.serverPath}/CompleteInformation.App" []
+            |> CreateProcess.withWorkingDirectory Config.serverPath
+            |> Job.fromCreateProcess
+        }
+
 [<EntryPoint>]
 let main args =
     args
@@ -53,6 +119,15 @@ let main args =
             job {
                 Task.restore ()
                 Task.build Debug
+            }
+        | [ "serve"; "web" ]
+        | [ "server" ]
+        | [] ->
+            job {
+                Task.restore ()
+                Task.build Debug
+                Task.publish Debug
+                Task.serveWeb ()
             }
         | _ ->
             Job.error [

@@ -5,3 +5,16 @@ framework: auto-detect
 
 nuget FSharp.Core  >= 6.0.0 content: none
 nuget NicoVIII.CompleteInformation.PluginBase copy_local: false
+
+# Client
+nuget Fable.Core
+nuget Fable.Elmish
+nuget Fable.Elmish.Browser
+nuget Fable.Elmish.HMR
+nuget Fable.Elmish.React
+nuget Fable.Mocha
+nuget Fable.React
+nuget Fable.Remoting.Client
+nuget Feliz
+nuget Feliz.Bulma
+nuget Fulma
