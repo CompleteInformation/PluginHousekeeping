@@ -9,3 +9,5 @@ deploy/
 output/
 node_modules/
 server/
+
+*.tar.lz
