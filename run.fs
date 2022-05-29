@@ -94,10 +94,9 @@ module Task =
             Directory.EnumerateFiles(backendPlugin, "Housekeeping.*")
             |> Seq.iter (Shell.copyFile $"{Config.serverPath}/plugins/")
 
-            let frontendPlugin =
-                $"{Path.GetDirectoryName(Config.frontendProject)}/deploy/public"
+            let frontendPlugin = $"{Path.GetDirectoryName(Config.frontendProject)}/deploy"
 
-            let frontendPluginPath = $"{Config.serverPath}/WebRoot/plugin/housekeeping/"
+            let frontendPluginPath = $"{Config.serverPath}/WebRoot/plugins/housekeeping/"
             Shell.mkdir frontendPluginPath
 
             Shell.copyRecursiveTo true frontendPluginPath frontendPlugin
@@ -125,8 +124,8 @@ let main args =
         | [] ->
             job {
                 Task.restore ()
-                Task.build Debug
-                Task.publish Debug
+                Task.build Release
+                Task.publish Release
                 Task.serveWeb ()
             }
         | _ ->

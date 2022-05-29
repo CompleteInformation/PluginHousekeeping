@@ -5,24 +5,13 @@
         "npm": "~8"
     },
     "scripts": {
-        "start": "dotnet fable watch . -o output -s --run webpack-dev-server",
-        "build": "dotnet fable . -o output -s --run webpack",
-        "build-prod": "dotnet fable . -o output -s --run webpack --mode production"
+        "build": "dotnet fable . -o output -s --run esbuild output/App.js --bundle --sourcemap --format=esm --splitting --target=chrome98,firefox98 --outdir=deploy",
+        "build-prod": "dotnet fable . -o output -s --run esbuild output/App.js --bundle --minify --format=esm --splitting --target=chrome98,firefox98 --outdir=deploy"
     },
     "devDependencies": {
-        "copy-webpack-plugin": "^10.0.0",
-        "css-loader": "^6.5.1",
-        "file-loader": "^6.2.0",
-        "html-webpack-plugin": "^5.5.0",
-        "mini-css-extract-plugin": "^2.4.5",
+        "esbuild": "^0.14.42",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
-        "sass": "^1.43.4",
-        "sass-loader": "^12.3.0",
-        "source-map-loader": "^3.0.0",
-        "style-loader": "^3.3.1",
-        "webpack": "^5.64.2",
-        "webpack-cli": "^4.9.1",
-        "webpack-dev-server": "^4.5.0"
+        "source-map-loader": "^3.0.0"
     }
 }

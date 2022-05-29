@@ -42,7 +42,6 @@ module Index =
     let content model =
         [
             Bulma.title "Housekeeping"
-            // Give a hint if there are no plugins
             let text =
                 match model.rooms with
                 | Some rooms ->

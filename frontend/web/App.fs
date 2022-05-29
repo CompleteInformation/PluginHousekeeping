@@ -8,9 +8,10 @@ open Elmish.HMR
 #endif
 
 module App =
-    Program.mkProgram Index.init Index.update Index.view
+    let activate () =
+        Program.mkProgram Index.init Index.update Index.view
 #if DEBUG
-    |> Program.withConsoleTrace
+        |> Program.withConsoleTrace
 #endif
-    |> Program.withReactSynchronous "elmish-app"
-    |> Program.run
+        |> Program.withReactSynchronous "module-slot"
+        |> Program.run
