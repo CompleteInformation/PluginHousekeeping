@@ -89,7 +89,7 @@ module Task =
             Shell.mkdir $"{Config.serverPath}/WebRoot/plugins"
 
             let backendPlugin =
-                $"{Path.GetDirectoryName(Config.backendProject)}/bin/Debug/net6.0/publish/"
+                $"{Path.GetDirectoryName(Config.backendProject)}/bin/Release/net6.0/publish/"
 
             let backendPluginPath = $"{Config.serverPath}/plugins/housekeeping/"
             Shell.mkdir backendPluginPath

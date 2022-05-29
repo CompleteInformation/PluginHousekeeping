@@ -1,6 +1,7 @@
 namespace CompleteInformation.Plugins.Housekeeping.Backend.Web
 
-open CompleteInformation.PluginBase
+open CompleteInformation.Core
+open CompleteInformation.Base.Backend.Web
 open CompleteInformation.Plugins.Housekeeping.Api
 open FSharp.Core
 

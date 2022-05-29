@@ -4,7 +4,8 @@ storage: none
 framework: auto-detect
 
 nuget FSharp.Core  >= 6.0.0 content: none
-nuget NicoVIII.CompleteInformation.PluginBase copy_local: false
+
+github CompleteInformation/Core:main
 
 # Client
 nuget Fable.Core
