@@ -91,8 +91,11 @@ module Task =
             let backendPlugin =
                 $"{Path.GetDirectoryName(Config.backendProject)}/bin/Debug/net6.0/publish/"
 
+            let backendPluginPath = $"{Config.serverPath}/plugins/housekeeping/"
+            Shell.mkdir backendPluginPath
+
             Directory.EnumerateFiles(backendPlugin, "Housekeeping.*")
-            |> Seq.iter (Shell.copyFile $"{Config.serverPath}/plugins/")
+            |> Seq.iter (Shell.copyFile $"{Config.serverPath}/plugins/housekeeping/")
 
             let frontendPlugin = $"{Path.GetDirectoryName(Config.frontendProject)}/deploy"
 
