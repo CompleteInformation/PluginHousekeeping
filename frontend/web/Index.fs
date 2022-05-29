@@ -3,6 +3,7 @@ namespace CompleteInformation.Plugins.Housekeeping.Frontend.Web
 open Elmish
 open Fable.Remoting.Client
 
+open CompleteInformation.Base.Frontend.Web
 open CompleteInformation.Plugins.Housekeeping.Api
 
 module Index =
@@ -17,8 +18,7 @@ module Index =
         | SetRooms of Room list
 
     let housekeepingApi =
-        Remoting.createApi ()
-        |> Remoting.withBaseUrl "http://localhost:8084/api"
+        Api.createBase ()
         |> Remoting.buildProxy<HousekeepingApi>
 
     let init () : Model * Cmd<Msg> =

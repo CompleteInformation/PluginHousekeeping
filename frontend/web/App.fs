@@ -3,9 +3,7 @@ namespace CompleteInformation.Plugins.Housekeeping.Frontend.Web
 open Elmish
 open Elmish.React
 
-#if DEBUG
-open Elmish.HMR
-#endif
+open CompleteInformation.Base.Frontend.Web
 
 module App =
     let activate () =
@@ -13,5 +11,5 @@ module App =
 #if DEBUG
         |> Program.withConsoleTrace
 #endif
-        |> Program.withReactSynchronous "module-slot"
+        |> Program.mount
         |> Program.run

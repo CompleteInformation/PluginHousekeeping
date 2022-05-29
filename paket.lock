@@ -28,7 +28,7 @@ NUGET
       Fable.Browser.Event (>= 1.5)
       Fable.Core (>= 3.0)
       FSharp.Core (>= 4.7.2)
-    Fable.Core (3.7)
+    Fable.Core (3.7.1)
     Fable.Elmish (3.1)
       Fable.Core (>= 3.0)
       FSharp.Core (>= 4.6.2)
@@ -128,7 +128,7 @@ NUGET
       System.ValueTuple (>= 4.4)
 GITHUB
   remote: CompleteInformation/Core
-    FULLPROJECT (1b2c0fd089393b161be33bcc5c11971afa3da2ef)
+    FULLPROJECT (7093fbcd2fee53eeb9123ace92a366c7ed989f27)
       Fable.Core
       Fable.Elmish
       Fable.Elmish.Browser
