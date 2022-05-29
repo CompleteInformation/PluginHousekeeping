@@ -5,8 +5,12 @@
         "npm": "~8"
     },
     "scripts": {
-        "build": "dotnet fable . -o output -s --run esbuild output/App.js --bundle --sourcemap --format=esm --splitting --target=chrome98,firefox98 --outdir=deploy",
-        "build-prod": "dotnet fable . -o output -s --run esbuild output/App.js --bundle --minify --format=esm --splitting --target=chrome98,firefox98 --outdir=deploy"
+        "build": "dotnet fable . -o output -s --run npm run bundle",
+        "build-prod": "dotnet fable . -o output -s --run npm run bundle-prod",
+        "bundle": "esbuild output/App.js --bundle --sourcemap --format=esm --splitting --target=chrome98,firefox98 --outdir=deploy",
+        "bundle-prod": "esbuild output/App.js --bundle --minify --format=esm --splitting --target=chrome98,firefox98 --outdir=deploy",
+        "bundle-and-copy": "npm run bundle-prod && cp -r deploy/* ../../server/WebRoot/plugins/housekeeping/ && echo \"Copied files.\"",
+        "watch": "dotnet fable watch . -o output -s --runWatch npm run bundle-and-copy"
     },
     "devDependencies": {
         "esbuild": "^0.14.42",

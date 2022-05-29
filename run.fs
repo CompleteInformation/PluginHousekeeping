@@ -106,9 +106,15 @@ module Task =
             |> ignore
 
             // Start server
-            CreateProcess.fromRawCommand $"{Config.serverPath}/CompleteInformation.App" []
-            |> CreateProcess.withWorkingDirectory Config.serverPath
-            |> Job.fromCreateProcess
+            parallelJob {
+                CreateProcess.fromRawCommand $"{Config.serverPath}/CompleteInformation.App" []
+                |> CreateProcess.withWorkingDirectory Config.serverPath
+                |> Job.fromCreateProcess
+
+                CreateProcess.fromRawCommand "npm" [ "run"; "watch" ]
+                |> CreateProcess.withWorkingDirectory "./frontend/web"
+                |> Job.fromCreateProcess
+            }
         }
 
 [<EntryPoint>]
