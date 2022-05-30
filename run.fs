@@ -97,13 +97,8 @@ module Task =
             Directory.EnumerateFiles(backendPlugin, "Housekeeping.*")
             |> Seq.iter (Shell.copyFile $"{Config.serverPath}/plugins/housekeeping/")
 
-            let frontendPlugin = $"{Path.GetDirectoryName(Config.frontendProject)}/deploy"
-
             let frontendPluginPath = $"{Config.serverPath}/WebRoot/plugins/housekeeping/"
             Shell.mkdir frontendPluginPath
-
-            Shell.copyRecursiveTo true frontendPluginPath frontendPlugin
-            |> ignore
 
             // Start server
             parallelJob {

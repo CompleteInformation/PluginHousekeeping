@@ -10,15 +10,15 @@ module Index =
     type Loading =
         {
             rooms: Room list option
-            roomTasks: RoomTask list option
-            tasks: Task list option
+            roomTasks: Map<RoomId, TaskId list> option
+            tasks: Map<TaskId, Task> option
         }
 
     type Loaded =
         {
             rooms: Room list
-            roomTasks: RoomTask list
-            tasks: Task list
+            roomTasks: Map<RoomId, TaskId list>
+            tasks: Map<TaskId, Task>
             selectedRoom: RoomId option
         }
 
@@ -93,6 +93,11 @@ module Index =
             let model =
                 match model with
                 | Loading model ->
+                    let tasks =
+                        tasks
+                        |> List.map (fun task -> task.id, task)
+                        |> Map.ofList
+
                     { model with tasks = Some tasks }
                     |> Model.checkIfLoaded
                 | _ -> failwith "SetTasks: model is not Loading"
@@ -102,6 +107,12 @@ module Index =
             let model =
                 match model with
                 | Loading model ->
+                    let roomTasks =
+                        roomTasks
+                        |> List.groupBy (fun roomTask -> roomTask.room)
+                        |> Map.ofList
+                        |> Map.map (fun _ taskList -> List.map (fun (roomTask: RoomTask) -> roomTask.task) taskList)
+
                     { model with
                         roomTasks = Some roomTasks
                     }
@@ -131,49 +142,62 @@ module Index =
     open Feliz
     open Feliz.Bulma
 
-    let roomSelect rooms dispatch =
-        [
-            Bulma.columns [
-                for room: Room in rooms do
-                    Bulma.column [
-                        column.is3
-                        prop.children [
-                            Bulma.card [
-                                prop.children [
-                                    Bulma.cardFooter [
-                                        Bulma.cardFooterItem.div [
-                                            Html.button [
-                                                prop.className "button"
-                                                prop.text room.name
-                                                prop.onClick (fun _ -> SelectRoom room.id |> dispatch)
-                                            ]
-                                        ]
-                                    ]
-                                ]
+    let columnView items itemView =
+        Bulma.columns [
+            for item in items do
+                Bulma.column [
+                    column.is3
+                    prop.children (itemView item: ReactElement)
+                ]
+        ]
+
+    let roomSelect dispatch rooms =
+        columnView rooms (fun (room: Room) ->
+            Bulma.card [
+                prop.children [
+                    Bulma.cardFooter [
+                        Bulma.cardFooterItem.div [
+                            Html.button [
+                                prop.className "button"
+                                prop.text room.name
+                                prop.onClick (fun _ -> SelectRoom room.id |> dispatch)
                             ]
                         ]
                     ]
-            ]
-        ]
+                ]
+            ])
 
-    let taskSelect room = []
+    let taskSelect dispatch tasks =
+        columnView tasks (fun (task: Task) ->
+            Bulma.card [
+                prop.children [
+                    Bulma.cardFooter [
+                        Bulma.cardFooterItem.div [
+                            Html.button [
+                                prop.className "button"
+                                prop.text task.name
+                                prop.onClick (fun _ -> ClearRoom |> dispatch)
+                            ]
+                        ]
+                    ]
+                ]
+            ])
 
     let loadedView model dispatch =
         match model.selectedRoom with
-        | Some room -> taskSelect room
-        | None -> roomSelect model.rooms dispatch
-
+        | Some roomId ->
+            Map.find roomId model.roomTasks
+            |> List.map (fun taskId -> Map.find taskId model.tasks)
+            |> taskSelect dispatch
+        | None -> roomSelect dispatch model.rooms
 
     let view (model: Model) (dispatch: Msg -> unit) =
         Html.div [
             Bulma.container [
                 Bulma.title "Housekeeping"
-                yield!
-                    match model with
-                    | Loaded model -> loadedView model dispatch
-                    | Loading _ ->
-                        [
-                            Bulma.block [ prop.text "Loading..." ]
-                        ]
-            ]
+                match model with
+                | Loaded model -> loadedView model dispatch
+                | Loading _ -> Bulma.block [ prop.text "Loading..." ]
+
+                ]
         ]

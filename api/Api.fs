@@ -24,12 +24,14 @@ module Task =
 
 type RoomTask = { room: RoomId; task: TaskId }
 
-type History =
+type HistoryEntry =
     {
         room: RoomId
         task: TaskId
         time: DateTime
     }
+
+type History = HistoryEntry seq
 
 type HousekeepingApi =
     {

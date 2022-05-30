@@ -40,7 +40,7 @@ module Data =
                 task = TaskId "vacuum"
             }
             {
-                room = RoomId "kitchen"
+                room = RoomId "bathroom"
                 task = TaskId "cleantoilette"
             }
         ]
