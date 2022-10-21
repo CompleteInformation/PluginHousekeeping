@@ -51,14 +51,7 @@ module Task =
             | Debug -> "Debug"
             | Release -> "Release"
 
-        job {
-            dotnet [
-                "publish"
-                Config.backendProject
-                "-c"
-                config
-            ]
-        }
+        job { dotnet [ "publish"; Config.backendProject; "-c"; config ] }
 
     let serveWeb () =
         job {
@@ -67,23 +60,16 @@ module Task =
                 cmd
                     "wget"
                     [
+                        "--no-cache"
                         "-O"
                         Config.serverArchivePath
                         "https://github.com/CompleteInformation/Core/releases/download/latest/CompleteInformation.tar.lz"
                     ]
             // Unpack server
             if not (Directory.Exists Config.serverPath) then
-                Directory.CreateDirectory Config.serverPath
-                |> ignore
+                Directory.CreateDirectory Config.serverPath |> ignore
 
-                cmd
-                    "tar"
-                    [
-                        "-xvf"
-                        Config.serverArchivePath
-                        "--directory"
-                        Config.serverPath
-                    ]
+                cmd "tar" [ "-xvf"; Config.serverArchivePath; "--directory"; Config.serverPath ]
             // Copy plugin into server
             Shell.mkdir $"{Config.serverPath}/plugins"
             Shell.mkdir $"{Config.serverPath}/WebRoot/plugins"
@@ -124,7 +110,7 @@ let main args =
                 Task.build Debug
             }
         | [ "serve"; "web" ]
-        | [ "server" ]
+        | [ "serve" ]
         | [] ->
             job {
                 Task.restore ()
@@ -132,9 +118,5 @@ let main args =
                 Task.publish Release
                 Task.serveWeb ()
             }
-        | _ ->
-            Job.error [
-                "Usage: dotnet run [<command>]"
-                "Look up available commands in run.fs"
-            ]
+        | _ -> Job.error [ "Usage: dotnet run [<command>]"; "Look up available commands in run.fs" ]
     |> Job.execute

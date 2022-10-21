@@ -17,7 +17,8 @@
 		"editorconfig.editorconfig",
 		"Ionide.Ionide-fsharp",
 		"ms-dotnettools.csharp",
-		"github.copilot"
+		"github.copilot",
+		"aaron-bond.better-comments"
 	],
 	"containerEnv": {
 		"ASPNETCORE_ENVIRONMENT": "Development"
