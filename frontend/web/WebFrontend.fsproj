@@ -7,9 +7,12 @@
   <ItemGroup>
     <None Include="index.html" />
     <None Include="paket.references" />
+    <Compile Include="Loading.fs" />
     <Compile Include="NewRoom.fs" />
     <Compile Include="NewTask.fs" />
-    <Compile Include="Index.fs" />
+    <Compile Include="App/State.fs" />
+    <Compile Include="App/Update.fs" />
+    <Compile Include="App/View.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <ItemGroup>

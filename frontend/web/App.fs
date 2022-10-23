@@ -4,10 +4,11 @@ open Elmish
 open Elmish.React
 
 open CompleteInformation.Base.Frontend.Web
+open CompleteInformation.Plugins.Housekeeping.Frontend.Web
 
 module App =
     let activate () =
-        Program.mkProgram Index.init Index.update Index.view
+        Program.mkProgram State.init State.update View.render
 #if DEBUG
         |> Program.withConsoleTrace
 #endif

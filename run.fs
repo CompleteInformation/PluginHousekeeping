@@ -17,14 +17,13 @@ module Config =
     let serverPath = "./server"
 
 module Task =
-    let restore () =
-        job {
-            DotNet.restoreWithTools Config.backendProject
+    let restore () = job {
+        DotNet.restoreWithTools Config.backendProject
 
-            CreateProcess.fromRawCommand "npm" [ "install" ]
-            |> CreateProcess.withWorkingDirectory "./frontend/web"
-            |> Job.fromCreateProcess
-        }
+        CreateProcess.fromRawCommand "npm" [ "install" ]
+        |> CreateProcess.withWorkingDirectory "./frontend/web"
+        |> Job.fromCreateProcess
+    }
 
     let buildWebClient config =
         let cmd =
@@ -39,11 +38,10 @@ module Task =
     let buildWebServer config =
         DotNet.build Config.backendProject config
 
-    let build config =
-        job {
-            buildWebClient config
-            buildWebServer config
-        }
+    let build config = job {
+        buildWebClient config
+        buildWebServer config
+    }
 
     let publish config =
         let config =
@@ -53,50 +51,48 @@ module Task =
 
         job { dotnet [ "publish"; Config.backendProject; "-c"; config ] }
 
-    let serveWeb () =
-        job {
-            // Download server
-            if not (File.Exists Config.serverArchivePath) then
-                cmd
-                    "wget"
-                    [
-                        "--no-cache"
-                        "-O"
-                        Config.serverArchivePath
-                        "https://github.com/CompleteInformation/Core/releases/download/latest/CompleteInformation.tar.lz"
-                    ]
-            // Unpack server
-            if not (Directory.Exists Config.serverPath) then
-                Directory.CreateDirectory Config.serverPath |> ignore
+    let serveWeb () = job {
+        // Download server
+        if not (File.Exists Config.serverArchivePath) then
+            cmd "wget" [
+                "--no-cache"
+                "-O"
+                Config.serverArchivePath
+                "https://github.com/CompleteInformation/Core/releases/download/latest/CompleteInformation.tar.lz"
+            ]
+        // Unpack server
+        if not (Directory.Exists Config.serverPath) then
+            Directory.CreateDirectory Config.serverPath |> ignore
 
-                cmd "tar" [ "-xvf"; Config.serverArchivePath; "--directory"; Config.serverPath ]
-            // Copy plugin into server
-            Shell.mkdir $"{Config.serverPath}/plugins"
-            Shell.mkdir $"{Config.serverPath}/WebRoot/plugins"
+            cmd "tar" [ "-xvf"; Config.serverArchivePath; "--directory"; Config.serverPath ]
+        // Copy plugin into server
+        Shell.mkdir $"{Config.serverPath}/plugins"
+        Shell.mkdir $"{Config.serverPath}/WebRoot/plugins"
 
-            let backendPlugin =
-                $"{Path.GetDirectoryName(Config.backendProject)}/bin/Release/net6.0/publish/"
+        let backendPlugin =
+            $"{Path.GetDirectoryName(Config.backendProject)}/bin/Debug/net6.0/publish/"
 
-            let backendPluginPath = $"{Config.serverPath}/plugins/housekeeping/"
-            Shell.mkdir backendPluginPath
+        let backendPluginPath = $"{Config.serverPath}/plugins/housekeeping/"
+        Shell.mkdir backendPluginPath
+        Shell.cleanDir backendPluginPath
 
-            Directory.EnumerateFiles(backendPlugin, "Housekeeping.*")
-            |> Seq.iter (Shell.copyFile $"{Config.serverPath}/plugins/housekeeping/")
+        Directory.EnumerateFiles(backendPlugin, "Housekeeping.*")
+        |> Seq.iter (Shell.copyFile $"{Config.serverPath}/plugins/housekeeping/")
 
-            let frontendPluginPath = $"{Config.serverPath}/WebRoot/plugins/housekeeping/"
-            Shell.mkdir frontendPluginPath
+        let frontendPluginPath = $"{Config.serverPath}/WebRoot/plugins/housekeeping/"
+        Shell.mkdir frontendPluginPath
 
-            // Start server
-            parallelJob {
-                CreateProcess.fromRawCommand $"{Config.serverPath}/CompleteInformation.App" []
-                |> CreateProcess.withWorkingDirectory Config.serverPath
-                |> Job.fromCreateProcess
+        // Start server
+        parallelJob {
+            CreateProcess.fromRawCommand $"{Config.serverPath}/CompleteInformation.App" []
+            |> CreateProcess.withWorkingDirectory Config.serverPath
+            |> Job.fromCreateProcess
 
-                CreateProcess.fromRawCommand "npm" [ "run"; "watch" ]
-                |> CreateProcess.withWorkingDirectory "./frontend/web"
-                |> Job.fromCreateProcess
-            }
+            CreateProcess.fromRawCommand "npm" [ "run"; "watch" ]
+            |> CreateProcess.withWorkingDirectory "./frontend/web"
+            |> Job.fromCreateProcess
         }
+    }
 
 [<EntryPoint>]
 let main args =
@@ -104,19 +100,17 @@ let main args =
     |> List.ofArray
     |> function
         | [ "restore" ] -> Task.restore ()
-        | [ "build" ] ->
-            job {
-                Task.restore ()
-                Task.build Debug
-            }
+        | [ "build" ] -> job {
+            Task.restore ()
+            Task.build Debug
+          }
         | [ "serve"; "web" ]
-        | [ "serve" ]
-        | [] ->
-            job {
-                Task.restore ()
-                Task.build Release
-                Task.publish Release
-                Task.serveWeb ()
-            }
+          | [ "serve" ]
+          | [] -> job {
+              Task.restore ()
+              Task.build Debug
+              Task.publish Debug
+              Task.serveWeb ()
+          }
         | _ -> Job.error [ "Usage: dotnet run [<command>]"; "Look up available commands in run.fs" ]
     |> Job.execute

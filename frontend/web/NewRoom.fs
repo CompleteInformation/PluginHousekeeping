@@ -7,6 +7,7 @@ open CompleteInformation.Plugins.Housekeeping.Api
 module NewRoom =
     type State = { name: string }
 
+    [<RequireQualifiedAccess>]
     type Intent =
         | None
         | Finish of Room
@@ -22,10 +23,10 @@ module NewRoom =
 
     let update housekeepingApi msg (state: State) =
         match msg with
-        | SetName name -> { state with name = name }, Cmd.none, None
+        | SetName name -> { state with name = name }, Cmd.none, Intent.None
         | Submit ->
             let roomProperties = { RoomProperties.name = state.name }
-            state, Cmd.OfAsync.perform housekeepingApi.putRoom roomProperties Finish, None
+            state, Cmd.OfAsync.perform housekeepingApi.putRoom roomProperties Finish, Intent.None
         | Finish room -> state, Cmd.none, Intent.Finish room
         | Cancel -> state, Cmd.none, Intent.Cancel
 

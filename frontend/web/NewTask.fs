@@ -7,6 +7,7 @@ open CompleteInformation.Plugins.Housekeeping.Api
 module NewTask =
     type State = { name: string }
 
+    [<RequireQualifiedAccess>]
     type Intent =
         | None
         | Finish of Task
@@ -22,10 +23,10 @@ module NewTask =
 
     let update housekeepingApi msg (state: State) =
         match msg with
-        | SetName name -> { state with name = name }, Cmd.none, None
+        | SetName name -> { state with name = name }, Cmd.none, Intent.None
         | Submit ->
             let taskProperties = { TaskProperties.name = state.name }
-            state, Cmd.OfAsync.perform housekeepingApi.putTask taskProperties Finish, None
+            state, Cmd.OfAsync.perform housekeepingApi.putTask taskProperties Finish, Intent.None
         | Finish task -> state, Cmd.none, Intent.Finish task
         | Cancel -> state, Cmd.none, Intent.Cancel
 
