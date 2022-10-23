@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  push:
+# For when there is CD
+#    branches-ignore:
+#      - main
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        dotnet: [6.0.402]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
+      - name: Run build
+        run: dotnet run build
