@@ -64,14 +64,12 @@ module View =
                 | Loaded ({ view = View.Overview } as state) ->
                     roomSelect dispatch (state.globalData.rooms |> Map.toList |> List.map snd)
                 | Loaded ({ view = View.Room roomId } as state) ->
-                    Map.find roomId state.globalData.roomTasks
+                    Map.find roomId state.globalData.roomTasks.perRoom
                     |> List.map (fun taskId -> Map.find taskId state.globalData.tasks)
                     |> taskSelect dispatch
                 // Child views
                 | Loading state -> Loading.render state (LoadingMsg >> dispatch)
                 | Loaded ({ view = View.Manager childState } as state) ->
                     yield! Manager.View.render state.globalData childState (ManagerMsg >> dispatch)
-            //| Loaded { view = View.NewRoom state } -> NewRoom.render state (NewRoomMsg >> dispatch)
-            //| Loaded { view = View.NewTask state } -> NewTask.render state (NewTaskMsg >> dispatch)
             ]
         ]

@@ -7,6 +7,7 @@ module View =
     open Feliz
     open Feliz.Bulma
 
+    // TODO: Move to viewhelper
     [<RequireQualifiedAccess>]
     module Bulma =
         let inline multilineColumns (children: ReactElement seq) =
@@ -39,16 +40,32 @@ module View =
             ]
         ]
 
-    let renderRoom (room: Room) (globalState: GlobalState) =
+    let renderRoom (room: Room) (globalState: GlobalState) dispatch =
+        let tasks =
+            Map.tryFind room.id globalState.roomTasks.perRoom |> Option.defaultValue []
+
         itemCard [
             Bulma.cardHeader [ Bulma.cardHeaderTitle.p room.properties.name ]
             Bulma.cardContent [
                 for task in globalState.tasks.Values do
+                    let isChecked = List.contains task.id tasks
+
                     Bulma.field.div [
                         Html.label [
                             prop.className "checkbox"
                             prop.children [
-                                Html.input [ prop.type'.checkbox; prop.isChecked false ]
+                                Html.input [
+                                    prop.type'.checkbox
+                                    prop.isChecked isChecked
+                                    prop.onCheckedChange (fun checked ->
+                                        let roomTask = { room = room.id; task = task.id }
+
+                                        if checked then
+                                            AddRoomTask roomTask
+                                        else
+                                            RemoveRoomTask roomTask
+                                        |> dispatch)
+                                ]
                                 Bulma.text.span $" %s{task.properties.name}"
                             ]
                         ]
@@ -56,16 +73,32 @@ module View =
             ]
         ]
 
-    let renderTask (task: Task) (globalState: GlobalState) =
+    let renderTask (task: Task) (globalState: GlobalState) dispatch =
+        let rooms =
+            Map.tryFind task.id globalState.roomTasks.perTask |> Option.defaultValue []
+
         itemCard [
             Bulma.cardHeader [ Bulma.cardHeaderTitle.p task.properties.name ]
             Bulma.cardContent [
                 for room in globalState.rooms.Values do
+                    let isChecked = List.contains room.id rooms
+
                     Bulma.field.div [
                         Html.label [
                             prop.className "checkbox"
                             prop.children [
-                                Html.input [ prop.type'.checkbox; prop.isChecked false ]
+                                Html.input [
+                                    prop.type'.checkbox
+                                    prop.isChecked isChecked
+                                    prop.onCheckedChange (fun checked ->
+                                        let roomTask = { room = room.id; task = task.id }
+
+                                        if checked then
+                                            AddRoomTask roomTask
+                                        else
+                                            RemoveRoomTask roomTask
+                                        |> dispatch)
+                                ]
                                 Bulma.text.span $" %s{room.properties.name}"
                             ]
                         ]
@@ -83,7 +116,7 @@ module View =
                 Bulma.multilineColumns [
                     renderCreateNew "e.g. Kitchen" state.newRoomName SetNewRoomName CreateNewRoom dispatch
                     for room in globalState.rooms.Values do
-                        renderRoom room globalState
+                        renderRoom room globalState dispatch
                 ]
             ]
             Bulma.column [
@@ -91,7 +124,7 @@ module View =
                 Bulma.multilineColumns [
                     renderCreateNew "e.g. Clean" state.newTaskName SetNewTaskName CreateNewTask dispatch
                     for task in globalState.tasks.Values do
-                        renderTask task globalState
+                        renderTask task globalState dispatch
                 ]
             ]
         ]

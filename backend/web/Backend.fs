@@ -90,11 +90,14 @@ module HousekeepingApi =
 
     let getRoomTasks () = async { return roomTasks }
 
-    let putRoomTask (room: RoomId) (task: TaskId) = async {
-        let roomTask = { room = room; task = task }
+    let putRoomTask (roomTask: RoomTask) = async {
         roomTasks <- Set.add roomTask roomTasks
         do! Persistence.RoomTaskSet.save roomTasks
-        return roomTask
+    }
+
+    let deleteRoomTask (roomTask: RoomTask) = async {
+        roomTasks <- Set.remove roomTask roomTasks
+        do! Persistence.RoomTaskSet.save roomTasks
     }
 
     let markTaskAsDone roomTask = async { printfn "Done: %A" roomTask }
@@ -106,6 +109,7 @@ module HousekeepingApi =
         putTask = putTask
         getRoomTasks = getRoomTasks
         putRoomTask = putRoomTask
+        deleteRoomTask = deleteRoomTask
         markTaskAsDone = markTaskAsDone
     }
 

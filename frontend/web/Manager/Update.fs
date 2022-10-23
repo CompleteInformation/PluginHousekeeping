@@ -14,12 +14,16 @@ type Intent =
     | Leave
     | CreateNewRoom of RoomProperties
     | CreateNewTask of TaskProperties
+    | AddRoomTask of RoomTask
+    | RemoveRoomTask of RoomTask
 
 type Msg =
     | SetNewRoomName of string
     | SetNewTaskName of string
     | CreateNewRoom
     | CreateNewTask
+    | AddRoomTask of RoomTask
+    | RemoveRoomTask of RoomTask
     | Leave
 
 module State =
@@ -43,3 +47,5 @@ module State =
         | CreateNewTask ->
             let props: TaskProperties = { name = state.newTaskName }
             { state with newTaskName = "" }, Cmd.none, Intent.CreateNewTask props
+        | AddRoomTask roomTask -> state, Cmd.none, Intent.AddRoomTask roomTask
+        | RemoveRoomTask roomTask -> state, Cmd.none, Intent.RemoveRoomTask roomTask

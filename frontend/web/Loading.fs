@@ -7,11 +7,11 @@ open CompleteInformation.Plugins.Housekeeping.Api
 module Loading =
     type State = {
         rooms: Map<RoomId, Room> option
-        roomTasks: Map<RoomId, TaskId list> option
+        roomTasks: Set<RoomTask> option
         tasks: Map<TaskId, Task> option
     }
 
-    type Loaded = Map<RoomId, Room> * Map<RoomId, TaskId list> * Map<TaskId, Task>
+    type Loaded = Map<RoomId, Room> * Set<RoomTask> * Map<TaskId, Task>
 
     [<RequireQualifiedAccess>]
     type Intent =
@@ -58,13 +58,6 @@ module Loading =
                 let tasks = tasks |> List.map (fun task -> task.id, task) |> Map.ofList
                 { state with tasks = Some tasks }, Cmd.none
             | SetRoomTasks roomTasks ->
-                let roomTasks =
-                    roomTasks
-                    |> Set.toList
-                    |> List.groupBy (fun roomTask -> roomTask.room)
-                    |> Map.ofList
-                    |> Map.map (fun _ taskList -> List.map (fun (roomTask: RoomTask) -> roomTask.task) taskList)
-
                 let state =
                     { state with
                         roomTasks = Some roomTasks
