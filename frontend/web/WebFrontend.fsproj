@@ -8,8 +8,10 @@
     <None Include="index.html" />
     <None Include="paket.references" />
     <Compile Include="Loading.fs" />
-    <Compile Include="NewRoom.fs" />
-    <Compile Include="NewTask.fs" />
+    <Compile Include="GlobalState.fs" />
+    <Compile Include="Manager/State.fs" />
+    <Compile Include="Manager/Update.fs" />
+    <Compile Include="Manager/View.fs" />
     <Compile Include="App/State.fs" />
     <Compile Include="App/Update.fs" />
     <Compile Include="App/View.fs" />

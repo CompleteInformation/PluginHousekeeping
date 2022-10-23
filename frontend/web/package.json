@@ -14,8 +14,10 @@
     },
     "devDependencies": {
         "esbuild": "^0.14.42",
-        "react": "^17.0.2",
-        "react-dom": "^17.0.2",
         "source-map-loader": "^3.0.0"
+    },
+    "dependencies": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
     }
 }

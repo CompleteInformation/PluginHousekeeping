@@ -6,14 +6,11 @@ open CompleteInformation.Plugins.Housekeeping.Api
 type View =
     | Overview
     | Room of RoomId
-    | NewRoom of NewRoom.State
-    | NewTask of NewTask.State
+    // Childviews
+    | Manager of Manager.State
 
 type Loaded = {
-    // Global data
-    rooms: Map<RoomId, Room>
-    roomTasks: Map<RoomId, TaskId list>
-    tasks: Map<TaskId, Task>
+    globalData: GlobalState
     // View-specific data
     view: View
 }

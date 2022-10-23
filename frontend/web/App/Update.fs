@@ -8,11 +8,14 @@ open CompleteInformation.Base.Frontend.Web
 open CompleteInformation.Plugins.Housekeeping.Api
 
 type Msg =
+    | CreateNewRoom of RoomProperties
+    | CreateNewTask of TaskProperties
+    | AddRoom of Room
+    | AddTask of Task
     | SetView of View
     // Child messages
     | LoadingMsg of Loading.Msg
-    | NewRoomMsg of NewRoom.Msg
-    | NewTaskMsg of NewTask.Msg
+    | ManagerMsg of Manager.Msg
 
 module State =
     let init () : State * Cmd<Msg> =
@@ -38,52 +41,69 @@ module State =
                     | Loading.Intent.None -> Loading childState
                     | Loading.Intent.Finish (rooms, roomTasks, tasks) ->
                         {
-                            rooms = rooms
-                            roomTasks = roomTasks
-                            tasks = tasks
+                            globalData =
+                                {
+                                    rooms = rooms
+                                    roomTasks = roomTasks
+                                    tasks = tasks
+                                }
                             view = View.Overview
                         }
                         |> Loaded
 
                 state, Cmd.map LoadingMsg childCmd
             | _ -> model, Cmd.none
-        | NewRoomMsg msg ->
+        | ManagerMsg msg ->
             match model with
-            | Loaded ({ view = View.NewRoom childState } as state) ->
-                let childState, childCmd, intent = NewRoom.update housekeepingApi msg childState
+            | Loaded ({ view = View.Manager childState } as state) ->
+                let state', cmd, intent = Manager.State.update msg state.globalData childState
 
-                let state =
+                let cmd2 =
                     match intent with
-                    | NewRoom.Intent.None ->
-                        { state with
-                            view = View.NewRoom childState
-                        }
-                    | NewRoom.Intent.Cancel -> { state with view = View.Overview }
-                    | NewRoom.Intent.Finish room ->
-                        { state with
-                            rooms = Map.add room.id room state.rooms
-                            view = View.Overview
-                        }
+                    | Manager.Intent.None -> Cmd.none
+                    | Manager.Intent.Leave -> SetView View.Overview |> Cmd.ofMsg
+                    | Manager.Intent.CreateNewRoom props -> CreateNewRoom props |> Cmd.ofMsg
+                    | Manager.Intent.CreateNewTask props -> CreateNewTask props |> Cmd.ofMsg
 
-                Loaded state, Cmd.map NewRoomMsg childCmd
+                let cmd = Cmd.batch [ Cmd.map ManagerMsg cmd; cmd2 ]
+
+                Loaded
+                    { state with
+                        view = View.Manager state'
+                    },
+                cmd
             | _ -> model, Cmd.none
-        | NewTaskMsg msg ->
+        | CreateNewRoom properties ->
+            let cmd = Cmd.OfAsync.perform housekeepingApi.putRoom properties AddRoom
+            model, cmd
+        | AddRoom room ->
             match model with
-            | Loaded ({ view = View.NewTask childState } as state) ->
-                let childState, childCmd, intent = NewTask.update housekeepingApi msg childState
-
+            | Loaded state ->
+                // TODO: Lens
                 let state =
-                    match intent with
-                    | NewTask.Intent.None ->
-                        { state with
-                            view = View.NewTask childState
-                        }
-                    | NewTask.Intent.Cancel -> { state with view = View.Overview }
-                    | NewTask.Intent.Finish task ->
-                        { state with
-                            tasks = Map.add task.id task state.tasks
-                            view = View.Overview
-                        }
+                    { state with
+                        globalData =
+                            { state.globalData with
+                                rooms = Map.add room.id room state.globalData.rooms
+                            }
+                    }
 
-                Loaded state, Cmd.map NewTaskMsg childCmd
+                Loaded state, Cmd.none
+            | _ -> model, Cmd.none
+        | CreateNewTask properties ->
+            let cmd = Cmd.OfAsync.perform housekeepingApi.putTask properties AddTask
+            model, cmd
+        | AddTask task ->
+            match model with
+            | Loaded state ->
+                // TODO: Lens
+                let state =
+                    { state with
+                        globalData =
+                            { state.globalData with
+                                tasks = Map.add task.id task state.globalData.tasks
+                            }
+                    }
+
+                Loaded state, Cmd.none
             | _ -> model, Cmd.none
