@@ -100,7 +100,7 @@ module HousekeepingApi =
         do! Persistence.RoomTaskSet.save roomTasks
     }
 
-    let markTaskAsDone roomTask = async { printfn "Done: %A" roomTask }
+    let trackRoomTaskDone roomTask = async { printfn "Done: %A" roomTask }
 
     let instance: HousekeepingApi = {
         getRooms = getRooms
@@ -110,7 +110,7 @@ module HousekeepingApi =
         getRoomTasks = getRoomTasks
         putRoomTask = putRoomTask
         deleteRoomTask = deleteRoomTask
-        markTaskAsDone = markTaskAsDone
+        trackRoomTaskDone = trackRoomTaskDone
     }
 
 type Plugin() =

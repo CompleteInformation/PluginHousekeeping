@@ -57,10 +57,10 @@ module View =
                                 Html.input [
                                     prop.type'.checkbox
                                     prop.isChecked isChecked
-                                    prop.onCheckedChange (fun checked ->
+                                    prop.onCheckedChange (fun isChecked ->
                                         let roomTask = { room = room.id; task = task.id }
 
-                                        if checked then
+                                        if isChecked then
                                             AddRoomTask roomTask
                                         else
                                             RemoveRoomTask roomTask
@@ -90,10 +90,10 @@ module View =
                                 Html.input [
                                     prop.type'.checkbox
                                     prop.isChecked isChecked
-                                    prop.onCheckedChange (fun checked ->
+                                    prop.onCheckedChange (fun isChecked ->
                                         let roomTask = { room = room.id; task = task.id }
 
-                                        if checked then
+                                        if isChecked then
                                             AddRoomTask roomTask
                                         else
                                             RemoveRoomTask roomTask

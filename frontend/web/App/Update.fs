@@ -8,11 +8,13 @@ open CompleteInformation.Base.Frontend.Web
 open CompleteInformation.Plugins.Housekeeping.Api
 
 type Msg =
+    | Idle
     | AddRoom of Room
     | AddTask of Task
     | AddRoomTask of RoomTask
     | RemoveRoomTask of RoomTask
     | SetView of View
+    | Track of RoomTask
     // Child messages
     | LoadingMsg of Loading.Msg
     | ManagerMsg of Manager.Msg
@@ -36,12 +38,17 @@ module State =
     let deleteRoomTaskCmd roomTask =
         Cmd.OfAsync.perform housekeepingApi.deleteRoomTask roomTask (fun () -> RemoveRoomTask roomTask)
 
+    let trackRoomTaskCmd roomTask =
+        Cmd.OfAsync.perform housekeepingApi.trackRoomTaskDone roomTask (fun () -> Idle)
+
     let update (msg: Msg) (model: State) : State * Cmd<Msg> =
         match msg with
+        | Idle -> model, Cmd.none
         | SetView view ->
             match model with
             | Loaded model -> Loaded { model with view = view }, Cmd.none
             | _ -> model, Cmd.none
+        | Track roomTask -> model, trackRoomTaskCmd roomTask
         | AddRoom room ->
             match model with
             | Loaded state ->

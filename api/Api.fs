@@ -48,5 +48,5 @@ type HousekeepingApi = {
     getRoomTasks: unit -> Async<Set<RoomTask>>
     putRoomTask: RoomTask -> Async<unit>
     deleteRoomTask: RoomTask -> Async<unit>
-    markTaskAsDone: RoomTask -> Async<unit>
+    trackRoomTaskDone: RoomTask -> Async<unit>
 }
