@@ -8,6 +8,7 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Const.fs" />
     <Compile Include="Persistence.fs" />
     <Compile Include="Backend.fs" />
   </ItemGroup>

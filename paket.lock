@@ -26,7 +26,7 @@ NUGET
     Expecto.FsCheck (9.0.4)
       Expecto (>= 9.0.4)
       FsCheck (>= 2.14.3)
-    Fable.AST (4.2)
+    Fable.AST (4.2.1)
     Fable.Browser.Blob (1.2)
       Fable.Core (>= 3.0)
       FSharp.Core (>= 4.7.2)
@@ -73,13 +73,13 @@ NUGET
     Fable.ReactDom.Types (18.0)
       Fable.React.Types (>= 18.1)
       FSharp.Core (>= 4.7.2)
-    Fable.Remoting.Client (7.23)
+    Fable.Remoting.Client (7.24)
       Fable.Browser.XMLHttpRequest (>= 1.0)
       Fable.Core (>= 3.1.5)
       Fable.Remoting.MsgPack (>= 1.18)
-      Fable.SimpleJson (>= 3.23)
+      Fable.SimpleJson (>= 3.24)
       FSharp.Core (>= 4.7.2)
-    Fable.Remoting.Giraffe (5.13)
+    Fable.Remoting.Giraffe (5.14)
       Fable.Remoting.Server (>= 5.32)
       FSharp.Core (>= 6.0)
       Giraffe (>= 5.0)
@@ -140,7 +140,7 @@ NUGET
     Microsoft.Diagnostics.NETCore.Client (0.2.351802)
       Microsoft.Bcl.AsyncInterfaces (>= 1.1)
       Microsoft.Extensions.Logging (>= 2.1.1)
-    Microsoft.Diagnostics.Runtime (2.2.332302)
+    Microsoft.Diagnostics.Runtime (2.2.343001)
       Microsoft.Diagnostics.NETCore.Client (>= 0.2.251802)
       System.Collections.Immutable (>= 5.0)
       System.Runtime.CompilerServices.Unsafe (>= 5.0)
@@ -197,7 +197,7 @@ NUGET
       System.ValueTuple (>= 4.4)
 GITHUB
   remote: CompleteInformation/Core
-    FULLPROJECT (fe585911cea00a9449c3d3294b870d7bda7b7e0d)
+    FULLPROJECT (6e5b1ad07a208c1d813a030afc0d68778766023a)
       Expecto.BenchmarkDotNet
       Expecto.FsCheck
       Fable.Elmish

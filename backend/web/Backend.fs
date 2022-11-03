@@ -119,6 +119,6 @@ type Plugin() =
             Api.build devMode HousekeepingApi.instance routeBuilder
 
         member _.getMetaData() = {
-            id = PluginId.create "housekeeping"
+            id = Const.moduleName |> PluginId.create
             name = "Housekeeping"
         }

@@ -5,13 +5,16 @@ open CompleteInformation.Plugins.Housekeeping.Api
 
 [<RequireQualifiedAccess>]
 module Persistence =
+    let loadJson<'a> = Persistence.loadJson<'a> Const.moduleName
+    let saveJson<'a> = Persistence.saveJson<'a> Const.moduleName
+
     module RoomList =
         let private fileName = "rooms.json"
 
-        let save (rooms: Room list) = Persistence.saveJson fileName rooms
+        let save (rooms: Room list) = saveJson fileName rooms
 
         let load () = async {
-            let! result = Persistence.loadJson<Room list> fileName
+            let! result = loadJson<Room list> fileName
 
             return
                 match result with
@@ -22,10 +25,10 @@ module Persistence =
     module TaskList =
         let private fileName = "tasks.json"
 
-        let save (tasks: Task list) = Persistence.saveJson fileName tasks
+        let save (tasks: Task list) = saveJson fileName tasks
 
         let load () = async {
-            let! result = Persistence.loadJson<Task list> fileName
+            let! result = loadJson<Task list> fileName
 
             return
                 match result with
@@ -36,10 +39,10 @@ module Persistence =
     module RoomTaskSet =
         let private fileName = "roomTasks.json"
 
-        let save (roomTasks: Set<RoomTask>) = Persistence.saveJson fileName roomTasks
+        let save (roomTasks: Set<RoomTask>) = saveJson fileName roomTasks
 
         let load () = async {
-            let! result = Persistence.loadJson<Set<RoomTask>> fileName
+            let! result = loadJson<Set<RoomTask>> fileName
 
             return
                 match result with
