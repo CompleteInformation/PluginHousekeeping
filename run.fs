@@ -112,5 +112,9 @@ let main args =
               Task.publish Debug
               Task.serveWeb ()
           }
+        | [ "cleanup-server" ] -> job {
+            Shell.deleteDir Config.serverPath
+            Shell.rm Config.serverArchivePath
+          }
         | _ -> Job.error [ "Usage: dotnet run [<command>]"; "Look up available commands in run.fs" ]
     |> Job.execute
