@@ -16,3 +16,4 @@ nuget Fable.Mocha
 nuget Fable.Remoting.Client
 nuget Feliz prerelease
 nuget Feliz.Bulma
+nuget NicoVIII.SimpleOptics

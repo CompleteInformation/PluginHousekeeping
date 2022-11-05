@@ -32,7 +32,6 @@ module State =
     let update (msg: Msg) (globalState: GlobalState) (state: State) : State * Cmd<Msg> * Intent =
         match msg with
         | Leave -> state, Cmd.none, Intent.Leave
-        // TODO: lens
         | SetNewRoomName name ->
             let state = { state with newRoomName = name }
 

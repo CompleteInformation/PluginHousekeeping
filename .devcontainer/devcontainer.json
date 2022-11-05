@@ -16,7 +16,8 @@
 				"ms-dotnettools.csharp",
 				"Ionide.Ionide-fsharp",
 				"github.copilot",
-				"aaron-bond.better-comments"
+				"aaron-bond.better-comments",
+				"Gruntfuggly.todo-tree"
 			],
 			"settings": {
 				"FSharp.dotnetRoot": "/usr/bin"

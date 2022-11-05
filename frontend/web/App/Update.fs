@@ -2,6 +2,7 @@ namespace CompleteInformation.Plugins.Housekeeping.Frontend.Web
 
 open Elmish
 open Fable.Remoting.Client
+open SimpleOptics
 
 open CompleteInformation.Base.Frontend.Web
 
@@ -50,97 +51,53 @@ module State =
             | _ -> model, Cmd.none
         | Track roomTask -> model, trackRoomTaskCmd roomTask
         | AddRoom room ->
-            match model with
-            | Loaded state ->
-                // TODO: Lens
-                let state =
-                    { state with
-                        globalData =
-                            { state.globalData with
-                                rooms = Map.add room.id room state.globalData.rooms
-                            }
-                    }
-
-                Loaded state, Cmd.none
-            | _ -> model, Cmd.none
+            let state = Optic.map StateOptic.loadedGlobalRooms (Map.add room.id room) model
+            state, Cmd.none
         | AddTask task ->
-            match model with
-            | Loaded state ->
-                // TODO: Lens
-                let state =
-                    { state with
-                        globalData =
-                            { state.globalData with
-                                tasks = Map.add task.id task state.globalData.tasks
-                            }
-                    }
-
-                Loaded state, Cmd.none
-            | _ -> model, Cmd.none
+            let state = Optic.map StateOptic.loadedGlobalTasks (Map.add task.id task) model
+            state, Cmd.none
         | AddRoomTask roomTask ->
-            match model with
-            | Loaded state ->
-                // TODO: Lens
-                let state =
-                    { state with
-                        globalData =
-                            { state.globalData with
-                                roomTasks =
-                                    {|
-                                        perRoom =
-                                            Map.change
-                                                roomTask.room
-                                                (function
-                                                 | None -> [ roomTask.task ]
-                                                 | Some lst -> roomTask.task :: lst
-                                                 >> Some)
-                                                state.globalData.roomTasks.perRoom
-                                        perTask =
-                                            Map.change
-                                                roomTask.task
-                                                (function
-                                                 | None -> [ roomTask.room ]
-                                                 | Some lst -> roomTask.room :: lst
-                                                 >> Some)
-                                                state.globalData.roomTasks.perTask
-                                    |}
-                            }
-                    }
+            let state =
+                model
+                |> Optic.map
+                    StateOptic.loadedGlobalRoomTasksPerRoom
+                    (Map.change
+                        roomTask.room
+                        (function
+                         | None -> [ roomTask.task ]
+                         | Some lst -> roomTask.task :: lst
+                         >> Some))
+                |> Optic.map
+                    StateOptic.loadedGlobalRoomTasksPerTask
+                    (Map.change
+                        roomTask.task
+                        (function
+                         | None -> [ roomTask.room ]
+                         | Some lst -> roomTask.room :: lst
+                         >> Some))
 
-                Loaded state, Cmd.none
-            | _ -> model, Cmd.none
+            state, Cmd.none
         | RemoveRoomTask roomTask ->
-            match model with
-            | Loaded state ->
-                // TODO: Lens
-                let state =
-                    { state with
-                        globalData =
-                            { state.globalData with
-                                roomTasks =
-                                    {|
-                                        perRoom =
-                                            Map.change
-                                                roomTask.room
-                                                (function
-                                                 | None -> []
-                                                 | Some lst -> List.filter ((<>) roomTask.task) lst
-                                                 >> Some)
-                                                state.globalData.roomTasks.perRoom
-                                        perTask =
-                                            Map.change
-                                                roomTask.task
-                                                (function
-                                                 | None -> []
-                                                 | Some lst -> List.filter ((<>) roomTask.room) lst
-                                                 >> Some)
-                                                state.globalData.roomTasks.perTask
-                                    |}
-                            }
-                    }
+            let state =
+                model
+                |> Optic.map
+                    StateOptic.loadedGlobalRoomTasksPerRoom
+                    (Map.change
+                        roomTask.room
+                        (function
+                         | None -> []
+                         | Some lst -> List.filter ((<>) roomTask.task) lst
+                         >> Some))
+                |> Optic.map
+                    StateOptic.loadedGlobalRoomTasksPerTask
+                    (Map.change
+                        roomTask.task
+                        (function
+                         | None -> []
+                         | Some lst -> List.filter ((<>) roomTask.room) lst
+                         >> Some))
 
-                Loaded state, Cmd.none
-            | _ -> model, Cmd.none
+            state, Cmd.none
         // Child updates
         | LoadingMsg msg ->
             match model with
@@ -150,13 +107,13 @@ module State =
                 let state =
                     match intent with
                     | Loading.Intent.None -> Loading childState
-                    | Loading.Intent.Finish (rooms, roomTasks, tasks) ->
+                    | Loading.Intent.Finish(rooms, roomTasks, tasks) ->
                         {
                             globalData =
                                 {
                                     rooms = rooms
                                     roomTasks =
-                                        {|
+                                        {
                                             // TODO: Abstract away
                                             perRoom =
                                                 roomTasks
@@ -172,7 +129,7 @@ module State =
                                                 |> List.groupBy fst
                                                 |> List.map (fun (taskId, lst) -> taskId, List.map snd lst)
                                                 |> Map.ofList
-                                        |}
+                                        }
                                     tasks = tasks
                                 }
                             view = View.Overview
@@ -183,7 +140,7 @@ module State =
             | _ -> model, Cmd.none
         | ManagerMsg msg ->
             match model with
-            | Loaded ({ view = View.Manager childState } as state) ->
+            | Loaded({ view = View.Manager childState } as state) ->
                 let state', cmd, intent = Manager.State.update msg state.globalData childState
 
                 let cmd2 =

@@ -166,6 +166,8 @@ NUGET
     Microsoft.IO.RecyclableMemoryStream (2.2.1)
     Mono.Cecil (0.11.4)
     Newtonsoft.Json (13.0.1)
+    NicoVIII.SimpleOptics (0.3.2)
+      FSharp.Core (>= 6.0)
     Perfolizer (0.2.1)
       System.Memory (>= 4.5.3)
     System.CodeDom (6.0)
