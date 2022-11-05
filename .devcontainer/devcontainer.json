@@ -1,25 +1,28 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
-// https://github.com/microsoft/vscode-dev-containers/tree/v0.194.3/containers/dotnet-fsharp
 {
 	"name": "F# (.NET)",
-	"build": {
-		"dockerfile": "Dockerfile",
-		"args": {
-			"NODE_VERSION": "lts/*"
+	"image": "mcr.microsoft.com/devcontainers/dotnet:0.203.10-6.0-focal",
+	"features": {
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "lts"
 		}
 	},
-	// Set *default* container specific settings.json values on container create.
-	"settings": {
-		"FSharp.dotnetRoot": "/usr/bin"
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"editorconfig.editorconfig",
+				"ms-dotnettools.csharp",
+				"Ionide.Ionide-fsharp",
+				"github.copilot",
+				"aaron-bond.better-comments"
+			],
+			"settings": {
+				"FSharp.dotnetRoot": "/usr/bin"
+			}
+		}
 	},
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"editorconfig.editorconfig",
-		"Ionide.Ionide-fsharp",
-		"ms-dotnettools.csharp",
-		"github.copilot",
-		"aaron-bond.better-comments"
-	],
 	"containerEnv": {
 		"ASPNETCORE_ENVIRONMENT": "Development"
 	},
@@ -27,6 +30,6 @@
 	// "forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "dotnet run restore",
-	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	// Set `remoteUser` to `root` to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode"
 }
