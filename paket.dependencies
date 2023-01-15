@@ -3,7 +3,7 @@ source https://api.nuget.org/v3/index.json
 storage: none
 framework: auto-detect
 
-nuget FSharp.Core >= 6.0.0 content: none
+nuget FSharp.Core ~> 6.0 content: none
 
 github CompleteInformation/Core:main
 
