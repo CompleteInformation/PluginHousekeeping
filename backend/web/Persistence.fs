@@ -63,3 +63,15 @@ module Persistence =
 
             do! JsonL.append fileName entry.metadata
         }
+
+        let getLast (roomTask: RoomTask) = async {
+            let fileName = getFileName roomTask.room roomTask.task
+
+            let! result = JsonL.load<HistoryMetadata> fileName
+
+            return
+                match result with
+                | Persistence.Success metadata when not (Seq.isEmpty metadata) -> metadata |> Seq.last |> Some
+                | Persistence.Success _
+                | Persistence.FileNotFound -> None
+        }

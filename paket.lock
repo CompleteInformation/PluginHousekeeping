@@ -193,7 +193,7 @@ NUGET
       System.ValueTuple (>= 4.4)
 GITHUB
   remote: CompleteInformation/Core
-    FULLPROJECT (7ba54b4932f8f2468d9c23f3a2f83839247fe230)
+    FULLPROJECT (47be4786211d590927feb32126078a9a1a231e89)
       Expecto.BenchmarkDotNet
       Expecto.FsCheck
       Fable.Browser.WebStorage

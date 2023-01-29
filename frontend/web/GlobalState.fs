@@ -11,6 +11,7 @@ type RoomTasksState = {
 }
 
 type GlobalState = {
+    lastDone: Map<RoomId * TaskId, HistoryMetadata>
     userId: UserId
     rooms: Map<RoomId, Room>
     tasks: Map<TaskId, Task>
@@ -30,6 +31,9 @@ module RoomTasksStateOptic =
 module GlobalStateOptic =
     let userId =
         Lens((fun state -> state.userId), (fun state userId -> { state with userId = userId }))
+
+    let lastDone =
+        Lens((fun state -> state.lastDone), (fun state lastDone -> { state with lastDone = lastDone }))
 
     let rooms =
         Lens((fun state -> state.rooms), (fun state rooms -> { state with rooms = rooms }))

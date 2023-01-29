@@ -1,6 +1,7 @@
 namespace CompleteInformation.Plugins.Housekeeping.Frontend.Web
 
 open SimpleOptics
+open SimpleOptics.Presets
 
 open CompleteInformation.Plugins.Housekeeping.Api
 
@@ -47,6 +48,11 @@ module StateOptic =
     let loadedGlobalRooms = Optic.compose loadedGlobal GlobalStateOptic.rooms
     let loadedGlobalTasks = Optic.compose loadedGlobal GlobalStateOptic.tasks
     let loadedGlobalRoomTasks = Optic.compose loadedGlobal GlobalStateOptic.roomTasks
+
+    let loadedGlobalLastDone = Optic.compose loadedGlobal GlobalStateOptic.lastDone
+
+    let loadedGlobalLastDoneRoomTask roomTask =
+        Optic.compose loadedGlobalLastDone (MapOptic.find roomTask)
 
     let loadedGlobalRoomTasksPerRoom =
         Optic.compose loadedGlobalRoomTasks RoomTasksStateOptic.perRoom

@@ -26,10 +26,6 @@ module Logger =
 
 [<AutoOpen>]
 module Data =
-    let mutable rooms = []
-    let mutable tasks = []
-    let mutable roomTasks = Set.empty
-
     let loadRooms () = async {
         log "Loading room data..."
         let! rooms = Persistence.RoomList.load ()
@@ -47,25 +43,44 @@ module Data =
     let loadRoomTasks () = async {
         log "Loading roomTask data..."
         let! roomTasks = Persistence.RoomTaskSet.load ()
+        // We also load the last time a task was done
+        let! history =
+            roomTasks
+            |> Seq.map (fun rt -> async {
+                let! last = Persistence.History.getLast rt
+                return (rt, last)
+            })
+            |> Async.Parallel
+
+        let historyMap =
+            Seq.choose (fun (rt, last) -> Option.map (fun last -> rt, last) last) history
+            |> Map.ofSeq
+
         log "Loaded roomTask data."
-        return roomTasks
+        return roomTasks, historyMap
     }
 
     log "Loading data..."
+
+    let mutable rooms = []
+    let mutable tasks = []
+    let mutable roomTasks = Set.empty
+    let mutable history = Map.empty
 
     // Load data
     async {
         let! rooms = loadRooms ()
         let! tasks = loadTasks ()
-        let! roomTasks = loadRoomTasks ()
+        let! (roomTasks, history) = loadRoomTasks ()
 
-        return rooms, tasks, roomTasks
+        return rooms, tasks, roomTasks, history
     }
     |> Async.RunSynchronously
-    |> fun (rooms', tasks', roomTasks') ->
+    |> fun (rooms', tasks', roomTasks', history') ->
         rooms <- rooms'
         tasks <- tasks'
         roomTasks <- roomTasks'
+        history <- history'
 
     log "Loaded data."
 
@@ -91,6 +106,8 @@ module HousekeepingApi =
 
     let getRoomTasks () = async { return roomTasks }
 
+    let getRoomTaskLastDone () = async { return history }
+
     let putRoomTask (roomTask: RoomTask) = async {
         roomTasks <- Set.add roomTask roomTasks
         do! Persistence.RoomTaskSet.save roomTasks
@@ -102,11 +119,14 @@ module HousekeepingApi =
     }
 
     let trackRoomTaskDone userId roomTask = async {
+        let metadata = { time = DateTime.Now; user = userId }
+
         let entry = {
             roomTask = roomTask
-            metadata = { time = DateTime.Now; user = userId }
+            metadata = metadata
         }
 
+        history <- Map.add roomTask metadata history
         do! Persistence.History.append entry
     }
 
@@ -116,6 +136,7 @@ module HousekeepingApi =
         getTasks = getTasks
         putTask = putTask
         getRoomTasks = getRoomTasks
+        getRoomTaskLastDone = getRoomTaskLastDone
         putRoomTask = putRoomTask
         deleteRoomTask = deleteRoomTask
         trackRoomTaskDone = trackRoomTaskDone

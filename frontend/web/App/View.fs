@@ -1,5 +1,7 @@
 namespace CompleteInformation.Plugins.Housekeeping.Frontend.Web
 
+open System
+
 open CompleteInformation.Plugins.Housekeeping.Api
 
 module View =
@@ -37,14 +39,33 @@ module View =
             ])
     ]
 
-    let taskSelect roomId loadingTasks loadedTasks dispatch tasks = [
+    let taskSelect roomId tasksWithLastDone loadingTasks loadedTasks dispatch = [
         Bulma.buttons [
             Bulma.button.button[prop.text "Back"
                                 prop.onClick (fun _ -> SetView View.Overview |> dispatch)]
         ]
-        columnView tasks (fun (task: Task) ->
+        columnView tasksWithLastDone (fun (task: Task, lastDone: HistoryMetadata option) ->
             Bulma.card [
                 prop.children [
+                    match lastDone with
+                    | Some lastDone ->
+                        let yesterday = DateTime.Now.AddDays(-1)
+                        let lastWeek = DateTime.Now.AddDays(-7)
+
+                        let timeString =
+                            if lastDone.time > yesterday then
+                                lastDone.time.ToString "HH:mm"
+                            else if lastDone.time.Date = yesterday.Date then
+                                "Yesterday"
+                            else if lastDone.time.Date > lastWeek.Date then
+                                "Last " + lastDone.time.DayOfWeek.ToString()
+                            else
+                                lastDone.time.ToString "yyyy/MM/dd"
+
+                        Bulma.cardImage [
+                            Bulma.notification [ Bulma.color.isInfo; prop.text $"Last done: %s{timeString}" ]
+                        ]
+                    | None -> ()
                     Bulma.cardFooter [
                         Bulma.cardFooterItem.div [
                             Bulma.button.button [
@@ -78,10 +99,14 @@ module View =
             | Loaded({
                          view = View.Room(roomId, loadingTasks, loadedTasks)
                      } as state) ->
-                yield!
+                let tasksWithLastDone =
                     Map.find roomId state.globalData.roomTasks.perRoom
-                    |> List.map (fun taskId -> Map.find taskId state.globalData.tasks)
-                    |> taskSelect roomId loadingTasks loadedTasks dispatch
+                    |> List.map (fun taskId ->
+                        let task = Map.find taskId state.globalData.tasks
+                        let lastDone = Map.tryFind (roomId, taskId) state.globalData.lastDone
+                        task, lastDone)
+
+                yield! taskSelect roomId tasksWithLastDone loadingTasks loadedTasks dispatch
             // Child views
             | Loading state -> Loading.render state (LoadingMsg >> dispatch)
             | Loaded({ view = View.Manager childState } as state) ->

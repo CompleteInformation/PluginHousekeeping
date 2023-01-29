@@ -53,10 +53,11 @@ type History = HistoryEntry seq
 type HousekeepingApi = {
     getRooms: unit -> Async<Room list>
     putRoom: RoomProperties -> Async<Room>
-    getTasks: unit -> Async<Task list>
+    getTasks: unit -> Async<(Task) list>
     putTask: TaskProperties -> Async<Task>
     getRoomTasks: unit -> Async<Set<RoomTask>>
     putRoomTask: RoomTask -> Async<unit>
+    getRoomTaskLastDone: unit -> Async<Map<RoomTask, HistoryMetadata>>
     deleteRoomTask: RoomTask -> Async<unit>
     trackRoomTaskDone: UserId -> RoomTask -> Async<unit>
 }

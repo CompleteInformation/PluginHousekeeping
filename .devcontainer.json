@@ -17,7 +17,8 @@
 				"Ionide.Ionide-fsharp",
 				"github.copilot",
 				"aaron-bond.better-comments",
-				"Gruntfuggly.todo-tree"
+				"Gruntfuggly.todo-tree",
+				"lehoanganh298.json-lines-viewer"
 			],
 			"settings": {
 				"FSharp.dotnetRoot": "/usr/bin"

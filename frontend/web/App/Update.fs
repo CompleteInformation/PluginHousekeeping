@@ -3,6 +3,7 @@ namespace CompleteInformation.Plugins.Housekeeping.Frontend.Web
 open Elmish
 open Fable.Remoting.Client
 open SimpleOptics
+open System
 
 open CompleteInformation.Base.Frontend.Web
 
@@ -49,19 +50,20 @@ module State =
             | Loaded model -> Loaded { model with view = view }, Cmd.none
             | _ -> model, Cmd.none
         | Track roomTask ->
-            let userId = Optic.get StateOptic.loadedGlobalUserId model
+            let userId = (Optic.get StateOptic.loadedGlobalUserId model).Value
 
             let model =
-                Optic.map
-                    StateOptic.loadedView
-                    (fun view ->
-                        match view with
-                        | View.Room(roomId, loadingTasks, loadedTasks) when roomId = roomTask.room ->
-                            View.Room(roomId, roomTask.task :: loadingTasks, loadedTasks)
-                        | _ -> view)
-                    model
+                model
+                |> Optic.map StateOptic.loadedView (fun view ->
+                    match view with
+                    | View.Room(roomId, loadingTasks, loadedTasks) when roomId = roomTask.room ->
+                        View.Room(roomId, roomTask.task :: loadingTasks, loadedTasks)
+                    | _ -> view)
+                |> Optic.set
+                    (StateOptic.loadedGlobalLastDoneRoomTask (roomTask.room, roomTask.task))
+                    { time = DateTime.Now; user = userId }
 
-            let cmd = trackRoomTaskCmd userId.Value roomTask
+            let cmd = trackRoomTaskCmd userId roomTask
             model, cmd
         | TrackFinished roomTask ->
             let model =
@@ -133,11 +135,16 @@ module State =
                 let state =
                     match intent with
                     | Loading.Intent.None -> Loading childState
-                    | Loading.Intent.Finish(rooms, roomTasks, tasks) ->
+                    | Loading.Intent.Finish(lastDone, rooms, roomTasks, tasks) ->
                         {
                             globalData =
                                 {
                                     userId = (LocalStorage.getUserId ()).Value
+                                    lastDone =
+                                        lastDone
+                                        |> Map.toSeq
+                                        |> Seq.map (fun (rt, metadata) -> (rt.room, rt.task), metadata)
+                                        |> Map.ofSeq
                                     rooms = rooms
                                     roomTasks =
                                         {
