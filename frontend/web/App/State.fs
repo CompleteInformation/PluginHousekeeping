@@ -7,7 +7,8 @@ open CompleteInformation.Plugins.Housekeeping.Api
 [<RequireQualifiedAccess>]
 type View =
     | Overview
-    | Room of RoomId
+    // Chosen room, a list of all currently loading task trackings and all tracked tasks
+    | Room of RoomId * TaskId list * TaskId list
     // Childviews
     | Manager of Manager.State
 
@@ -42,6 +43,7 @@ module StateOptic =
         )
 
     let loadedGlobal = Optic.compose loaded LoadedOptic.globalData
+    let loadedGlobalUserId = Optic.compose loadedGlobal GlobalStateOptic.userId
     let loadedGlobalRooms = Optic.compose loadedGlobal GlobalStateOptic.rooms
     let loadedGlobalTasks = Optic.compose loadedGlobal GlobalStateOptic.tasks
     let loadedGlobalRoomTasks = Optic.compose loadedGlobal GlobalStateOptic.roomTasks

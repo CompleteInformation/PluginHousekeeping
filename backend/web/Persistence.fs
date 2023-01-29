@@ -5,47 +5,61 @@ open CompleteInformation.Plugins.Housekeeping.Api
 
 [<RequireQualifiedAccess>]
 module Persistence =
-    let loadJson<'a> = Persistence.loadJson<'a> Const.moduleName
-    let saveJson<'a> = Persistence.saveJson<'a> Const.moduleName
+    module JsonL =
+        let inline append<'a> = Persistence.JsonL.append<'a> Const.moduleName
+        let inline load<'a> = Persistence.JsonL.load<'a> Const.moduleName
+
+        let inline save<'a> file =
+            Persistence.JsonL.save<'a> Const.moduleName file
 
     module RoomList =
-        let private fileName = "rooms.json"
+        let private fileName = "rooms.jsonl"
 
-        let save (rooms: Room list) = saveJson fileName rooms
+        let save (rooms: Room list) = JsonL.save fileName rooms
 
         let load () = async {
-            let! result = loadJson<Room list> fileName
+            let! result = JsonL.load<Room> fileName
 
             return
                 match result with
-                | Persistence.Success rooms -> rooms
+                | Persistence.Success rooms -> rooms |> List.ofSeq
                 | Persistence.FileNotFound -> []
         }
 
     module TaskList =
-        let private fileName = "tasks.json"
+        let private fileName = "tasks.jsonl"
 
-        let save (tasks: Task list) = saveJson fileName tasks
+        let save (tasks: Task list) = async { do! tasks |> List.toSeq |> JsonL.save fileName }
 
         let load () = async {
-            let! result = loadJson<Task list> fileName
+            let! result = JsonL.load<Task> fileName
 
             return
                 match result with
-                | Persistence.Success tasks -> tasks
+                | Persistence.Success tasks -> tasks |> List.ofSeq
                 | Persistence.FileNotFound -> []
         }
 
     module RoomTaskSet =
-        let private fileName = "roomTasks.json"
+        let private fileName = "roomTasks.jsonl"
 
-        let save (roomTasks: Set<RoomTask>) = saveJson fileName roomTasks
+        let save (roomTasks: Set<RoomTask>) = async { do! roomTasks |> Set.toSeq |> JsonL.save fileName }
 
         let load () = async {
-            let! result = loadJson<Set<RoomTask>> fileName
+            let! result = JsonL.load<RoomTask> fileName
 
             return
                 match result with
-                | Persistence.Success roomTasks -> roomTasks
+                | Persistence.Success roomTasks -> roomTasks |> Set.ofSeq
                 | Persistence.FileNotFound -> Set.empty
+        }
+
+    module History =
+        let private getFileName roomId taskId =
+            $"history/{RoomId.toString roomId}_{TaskId.toString taskId}.jsonl"
+
+        let append (entry: HistoryEntry) = async {
+            let fileName = getFileName entry.roomTask.room entry.roomTask.task
+
+            do! JsonL.append fileName entry.metadata
         }

@@ -4,6 +4,7 @@ open CompleteInformation.Core
 open CompleteInformation.Base.Backend.Web
 open CompleteInformation.Plugins.Housekeeping.Api
 open FSharp.Core
+open System
 
 // For now we work with stub data to design the GUI
 type Domain = {
@@ -100,7 +101,14 @@ module HousekeepingApi =
         do! Persistence.RoomTaskSet.save roomTasks
     }
 
-    let trackRoomTaskDone roomTask = async { printfn "Done: %A" roomTask }
+    let trackRoomTaskDone userId roomTask = async {
+        let entry = {
+            roomTask = roomTask
+            metadata = { time = DateTime.Now; user = userId }
+        }
+
+        do! Persistence.History.append entry
+    }
 
     let instance: HousekeepingApi = {
         getRooms = getRooms

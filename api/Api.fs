@@ -1,8 +1,13 @@
 namespace CompleteInformation.Plugins.Housekeeping.Api
 
+open CompleteInformation.Core
 open System
 
 type RoomId = RoomId of Guid
+
+module RoomId =
+    let toString (RoomId id) = id.ToString()
+
 type RoomProperties = { name: string }
 
 type Room = {
@@ -17,6 +22,10 @@ module Room =
     }
 
 type TaskId = TaskId of Guid
+
+module TaskId =
+    let toString (TaskId id) = id.ToString()
+
 type TaskProperties = { name: string }
 
 type Task = {
@@ -32,10 +41,11 @@ module Task =
 
 type RoomTask = { room: RoomId; task: TaskId }
 
+type HistoryMetadata = { time: DateTime; user: UserId }
+
 type HistoryEntry = {
-    room: RoomId
-    task: TaskId
-    time: DateTime
+    roomTask: RoomTask
+    metadata: HistoryMetadata
 }
 
 type History = HistoryEntry seq
@@ -48,5 +58,5 @@ type HousekeepingApi = {
     getRoomTasks: unit -> Async<Set<RoomTask>>
     putRoomTask: RoomTask -> Async<unit>
     deleteRoomTask: RoomTask -> Async<unit>
-    trackRoomTaskDone: RoomTask -> Async<unit>
+    trackRoomTaskDone: UserId -> RoomTask -> Async<unit>
 }

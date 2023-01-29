@@ -9,13 +9,13 @@ open CompleteInformation.Base.Frontend.Web
 open CompleteInformation.Plugins.Housekeeping.Api
 
 type Msg =
-    | Idle
     | AddRoom of Room
     | AddTask of Task
     | AddRoomTask of RoomTask
     | RemoveRoomTask of RoomTask
     | SetView of View
     | Track of RoomTask
+    | TrackFinished of RoomTask
     // Child messages
     | LoadingMsg of Loading.Msg
     | ManagerMsg of Manager.Msg
@@ -39,17 +39,43 @@ module State =
     let deleteRoomTaskCmd roomTask =
         Cmd.OfAsync.perform housekeepingApi.deleteRoomTask roomTask (fun () -> RemoveRoomTask roomTask)
 
-    let trackRoomTaskCmd roomTask =
-        Cmd.OfAsync.perform housekeepingApi.trackRoomTaskDone roomTask (fun () -> Idle)
+    let trackRoomTaskCmd userId roomTask =
+        Cmd.OfAsync.perform (housekeepingApi.trackRoomTaskDone userId) roomTask (fun () -> TrackFinished roomTask)
 
     let update (msg: Msg) (model: State) : State * Cmd<Msg> =
         match msg with
-        | Idle -> model, Cmd.none
         | SetView view ->
             match model with
             | Loaded model -> Loaded { model with view = view }, Cmd.none
             | _ -> model, Cmd.none
-        | Track roomTask -> model, trackRoomTaskCmd roomTask
+        | Track roomTask ->
+            let userId = Optic.get StateOptic.loadedGlobalUserId model
+
+            let model =
+                Optic.map
+                    StateOptic.loadedView
+                    (fun view ->
+                        match view with
+                        | View.Room(roomId, loadingTasks, loadedTasks) when roomId = roomTask.room ->
+                            View.Room(roomId, roomTask.task :: loadingTasks, loadedTasks)
+                        | _ -> view)
+                    model
+
+            let cmd = trackRoomTaskCmd userId.Value roomTask
+            model, cmd
+        | TrackFinished roomTask ->
+            let model =
+                Optic.map
+                    StateOptic.loadedView
+                    (fun view ->
+                        match view with
+                        | View.Room(roomId, loadingTasks, loadedTasks) when roomId = roomTask.room ->
+                            let loadingTasks = List.filter ((<>) roomTask.task) loadingTasks
+                            View.Room(roomId, loadingTasks, roomTask.task :: loadedTasks)
+                        | _ -> view)
+                    model
+
+            model, Cmd.none
         | AddRoom room ->
             let state = Optic.map StateOptic.loadedGlobalRooms (Map.add room.id room) model
             state, Cmd.none
@@ -111,6 +137,7 @@ module State =
                         {
                             globalData =
                                 {
+                                    userId = (LocalStorage.getUserId ()).Value
                                     rooms = rooms
                                     roomTasks =
                                         {

@@ -9,5 +9,8 @@
   <ItemGroup>
     <Compile Include="Api.fs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\paket-files\CompleteInformation\Core\src\core\Core.fsproj" />
+  </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

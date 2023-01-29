@@ -1,5 +1,6 @@
 namespace CompleteInformation.Plugins.Housekeeping.Frontend.Web
 
+open CompleteInformation.Core
 open SimpleOptics
 
 open CompleteInformation.Plugins.Housekeeping.Api
@@ -10,6 +11,7 @@ type RoomTasksState = {
 }
 
 type GlobalState = {
+    userId: UserId
     rooms: Map<RoomId, Room>
     tasks: Map<TaskId, Task>
     roomTasks: RoomTasksState
@@ -26,6 +28,9 @@ module RoomTasksStateOptic =
 
 [<RequireQualifiedAccess>]
 module GlobalStateOptic =
+    let userId =
+        Lens((fun state -> state.userId), (fun state userId -> { state with userId = userId }))
+
     let rooms =
         Lens((fun state -> state.rooms), (fun state rooms -> { state with rooms = rooms }))
 
